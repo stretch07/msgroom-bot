@@ -8,6 +8,7 @@
   },
   "author": "its-pablo",
   "license": "GPL-2.0",
+  "type": "module",
   "dependencies": {
     "socket.io-client": "^4.6.1"
   }
