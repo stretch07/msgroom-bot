@@ -1,0 +1,14 @@
+{
+  "name": "msgroom-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "its-pablo",
+  "license": "GPL-2.0",
+  "dependencies": {
+    "socket.io-client": "^4.6.1"
+  }
+}
