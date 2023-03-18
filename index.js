@@ -24,4 +24,11 @@ export default class {
         this.SOCKET.emit("change-user", nick)
         return this
     }
+    waitUntil(event){
+        return new Promise((resolve) => {
+            this.SOCKET.on(event, () => {
+                resolve()
+            })
+        })
+    }
 }
