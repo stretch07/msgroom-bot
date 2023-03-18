@@ -13,4 +13,15 @@ export default class {
             })
         })
     }
+    send(msg = ""){
+        this.SOCKET.emit("message", {
+            type: "text",
+            value: msg
+        })
+        return this
+    }
+    changeNick(nick = "nick"){
+        this.SOCKET.emit("change-user", nick)
+        return this
+    }
 }
