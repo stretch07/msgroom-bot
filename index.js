@@ -30,6 +30,11 @@ export default class {
             })
         })
     }
+    /**
+     * 
+     * @param {string} msg 
+     * @returns {this}
+     */
     send(msg = "") {
         this.SOCKET.emit("message", {
             type: "text",
