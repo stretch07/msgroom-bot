@@ -48,8 +48,8 @@ export default class {
     }
     waitUntil(event) {
         return new Promise((resolve) => {
-            this.SOCKET.on(event, () => {
-                resolve()
+            this.SOCKET.on(event, e => {
+                resolve(e)
             })
         })
     }
