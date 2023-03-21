@@ -1,5 +1,13 @@
 import { io } from "socket.io-client"
 
+export class CommandSet {
+    constructor(prefix){
+        this.prefix = prefix
+    }
+    registerCommand(name, exec) {
+        return new Command(name, exec)
+    }
+}
 export class Command {
     constructor(name, exec) {
         this.name = name
@@ -53,7 +61,14 @@ export default class {
             })
         })
     }
-    registerCommand(name, exec) {
-        return new Command(name, exec)
+    /**
+     * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
+     * @param {string} prefix One-char prefix for the CommandSet
+     */
+    registerCommandSet(prefix){
+        if(prefix.length !== 1){
+            return new Error("Prefix is not one char")
+        }
+        return new CommandSet(prefix)
     }
 }
