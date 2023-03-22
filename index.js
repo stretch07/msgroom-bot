@@ -47,7 +47,7 @@ export default class {
         try {
             this.SOCKET.emit("message", {
                 type: "text",
-                value: msg
+                content: msg
             })
         } catch (e) {
             throw new Error(e)
