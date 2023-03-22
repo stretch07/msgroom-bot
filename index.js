@@ -70,9 +70,6 @@ export default class {
      * @param {string} prefix One-char prefix for the CommandSet
      */
     registerCommandSet(prefix) {
-        if (prefix.length !== 1) {
-            return new Error("Prefix is not one char")
-        }
         return new CommandSet(prefix)
     }
 }
