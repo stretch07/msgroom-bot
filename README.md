@@ -1,5 +1,6 @@
-# msgroom-bot
-Library to make a Windows96 MsgRoom bot
+#msgroom-bot
+Library to create a Windows96 MsgRoom bot
 ---
-## THIS REPO HAS BEEN ARCHIVED INDEFINITELY. PLEASE USE THE OFFICIAL INTERFACE INSTEAD. AT THE TIME OF WRITING IT HAS NOT RELEASED.
+*Please note that this is NOT the official API for creating MsgRoom bots. As the official API is not yet released, this project is a temporary solution*
+
 You are free to fork/clone and continue on your own idk
