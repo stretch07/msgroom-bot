@@ -47,7 +47,7 @@ export default class {
         try {
             this.SOCKET.emit("message", {
                 type: "text",
-                value: msg
+                content: msg
             })
         } catch (e) {
             throw new Error(e)
@@ -70,9 +70,6 @@ export default class {
      * @param {string} prefix One-char prefix for the CommandSet
      */
     registerCommandSet(prefix) {
-        if (prefix.length !== 1) {
-            return new Error("Prefix is not one char")
-        }
         return new CommandSet(prefix)
     }
 }
