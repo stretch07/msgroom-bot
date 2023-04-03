@@ -1,4 +1,5 @@
 import { io } from "socket.io-client"
+import MsgroomSocket from "./types.js"
 
 export class CommandSet {
     constructor(prefix) {
@@ -18,6 +19,11 @@ export class Command {
     }
 }
 export default class {
+    /**
+     * @type {MsgroomSocket}
+     */
+    SOCKET
+
     constructor() {
     }
     /**
@@ -26,7 +32,7 @@ export default class {
      * @param {URL} url URL of the bot to connect to. Leave blank for default Windows 96 msgroom
      */
     connect(nick, url = new URL("wss://windows96.net:4096")) {
-        this.SOCKET = new io(url.href)
+        this.SOCKET = io(url.href)
         return new Promise((resolve, reject) => {
             this.SOCKET.emit("auth", { user: nick })
             this.SOCKET.on("auth-complete", userId => {
