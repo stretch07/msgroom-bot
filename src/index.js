@@ -108,6 +108,9 @@ export default class {
             })
         })
     }
+    async disconnect() {
+        this.SOCKET.disconnect()
+    }
     /**
      * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
      * @param {string} prefix prefix for the CommandSet
