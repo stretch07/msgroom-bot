@@ -97,7 +97,7 @@ export default class {
      * @param {string} msg 
      * @returns {this}
      */
-    async send(msg = "") {
+    send(msg = "") {
         try {
             this.SOCKET.emit("message", {
                 type: "text",
