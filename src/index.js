@@ -4,9 +4,18 @@ import MsgroomSocket from "./types.js"
 export class CommandSet {
     constructor(prefix) {
         this.prefix = prefix
+        this.commands = []
     }
     registerCommand(name, exec) {
-        return new Command(name, exec)
+        const command = new Command(name, exec)
+        this.commands.push(command)
+        return command
+    }
+    execCommand(name, ...params) {
+        const command = this.commands.find(command => {
+            return command.name === name
+        })
+        this.commands[command].exec(...params)
     }
 }
 export class Command {
@@ -25,6 +34,7 @@ export default class {
     SOCKET
 
     constructor() {
+        this.commandSets = []
     }
     /**
      * 
@@ -33,9 +43,32 @@ export default class {
      */
     connect(nick, url = new URL("wss://windows96.net:4096")) {
         this.SOCKET = io(url.href)
-        this.SOCKET.on("message", data => {
-            // we will handle CommandSet detection here
-            data
+        this.SOCKET.on("message", async (message) => {
+            const matchingCommandSet = this.commandSets.find(comset => {
+                if (message.content.startsWith(comset.prefix)) {
+                    return comset
+                }
+            })
+            if (!matchingCommandSet) {
+                return
+            } else {
+                //thanks for the command parser, chatgpt
+                const input = message.content
+                const prefix = matchingCommandSet.prefix
+                const regex = new RegExp(`^${prefix}([a-z]+)\\s(.*)$`, "i");
+                const match = input.match(regex);
+
+                if (match) {
+                    const command = match[1];
+                    const args = match[2].split(" ");
+                    console.log(`Prefix: ${prefix}`);
+                    console.log(`Command: ${command}`);
+                    console.log(`Arguments: ${args}`);
+                    matchingCommandSet.execCommand(command, ...args)
+                } else {
+                    await this.send("Syntax error ocurred when parsing command")
+                }
+            }
         })
         return new Promise((resolve, reject) => {
             this.SOCKET.on("auth-complete", userId => {
@@ -80,6 +113,8 @@ export default class {
      * @param {string} prefix prefix for the CommandSet
      */
     registerCommandSet(prefix) {
-        return new CommandSet(prefix)
+        const thing = new CommandSet(prefix)
+        this.commandSets.push(thing)
+        return thing
     }
 }
