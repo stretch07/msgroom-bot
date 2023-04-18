@@ -1,10 +1,12 @@
-import msgroomBot from "./index.js";
-const bot = new msgroomBot
+import MsgroomBot from "./index.js";
+const bot = new MsgroomBot
 
-await bot.connect("msgroom-bot")
+try {
+    await bot.connect("msgroom-bot")
+} catch(e) {
+    process.exit(1, e)
+}
+console.log("Connected")
 
-bot
-    .send("Hello! This is msgroom-bot made by its-pablo. If you are seeing this, everything is working properly. Try not to run this file many times because staff doesn't like spam.")
-    .send("Example bot has connected!")
-
-console.log("done")
+await bot.send("Hello! This is msgroom-bot made by its-pablo. If you are seeing this, everything is working properly. Try not to run this file many times because staff doesn't like spam.")
+console.log("Default message sent")
