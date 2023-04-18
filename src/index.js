@@ -114,7 +114,7 @@ export default class {
     }
     waitUntil(event) {
         return new Promise((resolve) => {
-            this.SOCKET.on(event, e => {
+            this.SOCKET.once(event, e => {
                 resolve(e)
             })
         })
