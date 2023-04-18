@@ -40,7 +40,7 @@ export default class {
      * @param {string} nick Nickname of the bot to initially connect
      * @param {URL} url URL of the bot to connect to. Leave blank for default Windows 96 msgroom
      */
-    connect(nick, url = new URL("wss://windows96.net:4096")) {
+    connect(nick, apikey, url = new URL("wss://windows96.net:4096")) {
         this.SOCKET = io(url.href)
         this.SOCKET.on("message", async (message) => {
             const matchingCommandSet = this.commandSets.find(comset => {
@@ -74,7 +74,11 @@ export default class {
             this.SOCKET.on("auth-error", e => {
                 reject(e)
             })
-            this.SOCKET.emit("auth", { user: nick })
+            if (apikey) {
+                this.SOCKET.emit("auth", { user: nick, apikey: apikey})
+            } else {
+                this.SOCKET.emit("auth", {user: nick})
+            }
         })
     }
     /**
