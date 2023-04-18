@@ -93,7 +93,7 @@ export default class {
         }
         return this
     }
-    changeNick(nick = "nick") {
+    async changeNick(nick = "nick") {
         this.SOCKET.emit("change-user", nick)
         return this
     }
