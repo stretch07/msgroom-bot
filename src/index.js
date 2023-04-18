@@ -31,13 +31,12 @@ export default class {
      * @type {MsgroomSocket}
      */
     SOCKET
-
     constructor() {
         this.commandSets = []
         this.users = []
     }
     /**
-     * 
+     * Connects to msgroom instance.
      * @param {string} nick Nickname of the bot to initially connect
      * @param {URL} url URL of the bot to connect to. Leave blank for default Windows 96 msgroom
      */
@@ -93,7 +92,7 @@ export default class {
         })
     }
     /**
-     * 
+     * Sends a message. Supports some markdown.
      * @param {string} msg 
      * @returns {this}
      */
@@ -108,10 +107,20 @@ export default class {
         }
         return this
     }
+    /**
+     * Changes the bot nickname.
+     * @param {string} nick 
+     * @returns {this}
+     */
     changeNick(nick = "nick") {
         this.SOCKET.emit("change-user", nick)
         return this
     }
+    /**
+     * Wait until a specific event fires
+     * @param {string} event The event being listened to
+     * @returns {any} Returns with the content of the event
+     */
     waitUntil(event) {
         return new Promise((resolve) => {
             this.SOCKET.once(event, e => {
@@ -119,8 +128,22 @@ export default class {
             })
         })
     }
+    /**
+     * Disconnects. Call this.connect to reconnect.
+     * @returns {this}
+     */
     disconnect() {
         this.SOCKET.disconnect()
+        return this
+    }
+    /**
+     * Executes an admin action. You must be staff for this to work.
+     * @param {*} args 
+     * @returns {this}
+     */
+    admin(args){
+        this.SOCKET.emit("admin-action", {args: args})
+        return this
     }
     /**
      * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
