@@ -33,15 +33,19 @@ export default class {
      */
     connect(nick, url = new URL("wss://windows96.net:4096")) {
         this.SOCKET = io(url.href)
+        this.SOCKET.on("message", data => {
+            // we will handle CommandSet detection here
+            data
+        })
         return new Promise((resolve, reject) => {
-            this.SOCKET.emit("auth", { user: nick })
             this.SOCKET.on("auth-complete", userId => {
-                this.useId = userId
+                this.userId = userId
                 resolve(this)
             })
             this.SOCKET.on("auth-error", e => {
                 reject(e)
             })
+            this.SOCKET.emit("auth", { user: nick })
         })
     }
     /**
@@ -49,7 +53,7 @@ export default class {
      * @param {string} msg 
      * @returns {this}
      */
-    send(msg = "") {
+    async send(msg = "") {
         try {
             this.SOCKET.emit("message", {
                 type: "text",
@@ -73,7 +77,7 @@ export default class {
     }
     /**
      * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
-     * @param {string} prefix One-char prefix for the CommandSet
+     * @param {string} prefix prefix for the CommandSet
      */
     registerCommandSet(prefix) {
         return new CommandSet(prefix)
