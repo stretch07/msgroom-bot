@@ -66,6 +66,25 @@ export default class {
                 }
             }
         })
+        /**
+         * @param {MsgroomSocket.ServerToClientEvents.online} online users
+         */
+        this.SOCKET.on("online" users => {
+            this.users = users
+        })
+        /**
+     * @param {MsgroomSocket.ServerToClientEvents["user-join"]} user The user that joined
+         */
+        this.SOCKET.on("user-join", user => {
+            this.users.push(user)
+        })
+        /**
+         * @param {MsgroomSocket.ServerToClientEvents["user-leave"]} user The user that left
+         */
+        this.SOCKET.on("user-leave", user => {
+            //we find the user that left, get its index, and delete the value.
+            this.users.splice(this.users.indexOf(this.users.find(founduser => founduser.id === user.id)), 1)
+        })
         return new Promise((resolve, reject) => {
             this.SOCKET.on("auth-complete", userId => {
                 this.userId = userId
