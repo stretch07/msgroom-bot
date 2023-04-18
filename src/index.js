@@ -34,6 +34,7 @@ export default class {
 
     constructor() {
         this.commandSets = []
+        this.users = []
     }
     /**
      * 
@@ -69,7 +70,7 @@ export default class {
         /**
          * @param {MsgroomSocket.ServerToClientEvents.online} online users
          */
-        this.SOCKET.on("online" users => {
+        this.SOCKET.on("online", users => {
             this.users = users
         })
         /**
