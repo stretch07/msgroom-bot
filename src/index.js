@@ -12,10 +12,9 @@ export class CommandSet {
         return command
     }
     execCommand(name, ...params) {
-        const command = this.commands.find(command => {
-            return command.name === name
-        })
-        this.commands[command].exec(...params)
+        const command = this.commands.find(command => command.name === name )
+        this.commands[this.commands.indexOf(command)].exec(...params)
+        //console.log()
     }
 }
 export class Command {
@@ -61,9 +60,6 @@ export default class {
                 if (match) {
                     const command = match[1];
                     const args = match[2].split(" ");
-                    console.log(`Prefix: ${prefix}`);
-                    console.log(`Command: ${command}`);
-                    console.log(`Arguments: ${args}`);
                     matchingCommandSet.execCommand(command, ...args)
                 } else {
                     await this.send("Syntax error ocurred when parsing command")
