@@ -1,8 +1,12 @@
 import { Socket } from "socket.io-client";
-
+import { EventNames } from "@socket.io/component-emitter"
 
 export type MsgroomSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 export default MsgroomSocket;
+
+type ReservedEventNames = "connect" | "connect_error" | "disconnect"
+export type ServerToClientEventNames = EventNames<ServerToClientEvents> | ReservedEventNames
+export type ClientToServerEventNames = EventNames<ClientToServerEvents>
 
 /**
  * Hexadecimal color string
