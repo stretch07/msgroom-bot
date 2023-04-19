@@ -130,14 +130,10 @@ export default class {
      * @returns {this}
      */
     send(msg = "") {
-        try {
-            this.SOCKET.emit("message", {
-                type: "text",
-                content: msg
-            })
-        } catch (e) {
-            throw new Error(e)
-        }
+        this.SOCKET.emit("message", {
+            type: "text",
+            content: msg
+        })
         return this
     }
     /**
