@@ -1,6 +1,6 @@
 //@ts-check
 import { io } from "socket.io-client"
-import MsgroomSocket from "./types.js"
+import { AuthError } from "./errors.js"
 
 export class CommandSet {
     /** @type {string} */
@@ -76,52 +76,56 @@ export default class {
      * @param {string} nick Nickname of the bot to initially connect
      * @param {string | undefined} apikey The apikey for your bot, you can request one from ctrlz. Using an apikey will result in your bot getting a `bot` flag.
      * @param {URL} url URL of the bot to connect to. Leave blank for default Windows 96 msgroom
+     * @returns {Promise<void>}
+     * @throws {AuthError} When the event `auth-error` is received
      */
     connect(nick, apikey, url = new URL("wss://windows96.net:4096")) {
         this.SOCKET = io(url.href)
+
+        //#region define event listeners
+
         this.SOCKET.on("message", async (message) => {
-            const matchingCommandSet = this.commandSets.find(comset => {
-                if (message.content.startsWith(comset.prefix)) {
-                    return comset
-                }
-            })
+            const matchingCommandSet = this.commandSets.find(commandSet => message.content.startsWith(commandSet.prefix))
             if (!matchingCommandSet) return
 
             //thanks for the command parser, chatgpt
-            const input = message.content
-            const prefix = matchingCommandSet.prefix
-            const regex = new RegExp(`^${prefix}([a-z]+)\\s(.*)$`, "i");
-            const match = input.match(regex);
-
+            const regex = new RegExp(`^${matchingCommandSet.prefix}([a-z]+)\\s(.*)$`, "i");
+            const match = message.content.match(regex);
             if (!match) return this.send("Syntax error ocurred when parsing command")
 
             const command = match[1];
             const args = match[2].split(" ");
             matchingCommandSet.execCommand(command, ...args)
         })
+
         this.SOCKET.on("online", users => {
             this.users = users
         })
+
         this.SOCKET.on("user-join", user => {
             this.users.push(user)
         })
+
         this.SOCKET.on("user-leave", user => {
-            //we find the user that left, get its index, and delete the value.
-            this.users.splice(this.users.indexOf(this.users.find(founduser => founduser.id === user.id)), 1)
+            const leftUser = this.users.find(founduser => founduser.id === user.id)
+            if (!leftUser) return
+
+            const indexOfLeftUser = this.users.indexOf(leftUser)
+            delete this.users[indexOfLeftUser]
         })
+
+        //#endregion
+
         return new Promise((resolve, reject) => {
             this.SOCKET.on("auth-complete", userId => {
                 this.userId = userId
-                resolve(this)
+                resolve()
             })
             this.SOCKET.on("auth-error", e => {
-                reject(e)
+                reject(new AuthError(e.reason))
             })
-            if (apikey) {
-                this.SOCKET.emit("auth", { user: nick, apikey: apikey})
-            } else {
-                this.SOCKET.emit("auth", {user: nick})
-            }
+
+            this.SOCKET.emit("auth", { user: nick, apikey})
         })
     }
     /**
