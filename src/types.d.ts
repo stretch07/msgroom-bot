@@ -12,7 +12,7 @@ export type hexColor = `#${string}`;
 
 export type flag = "staff" | "bot";
 
-interface User {
+export interface User {
     color: hexColor;
     flags: flag[];
     id: string;
