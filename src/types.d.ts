@@ -1,7 +1,7 @@
 import { Socket } from "socket.io-client";
 
 
-type MsgroomSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+export type MsgroomSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 export default MsgroomSocket;
 
 /**
