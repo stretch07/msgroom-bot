@@ -28,6 +28,7 @@ export default class {
      */
     SOCKET
     constructor() {
+        /** @type {CommandSet[]} */
         this.commandSets = []
         this.users = []
     }
