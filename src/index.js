@@ -5,22 +5,37 @@ import MsgroomSocket from "./types.js"
 export class CommandSet {
     /** @type {string} */
     prefix
-
     /** @type {Command[]} */
     commands
 
+    /**
+     * @param {string} prefix The prefix for your command.
+     */
     constructor(prefix) {
         this.prefix = prefix
         this.commands = []
     }
+
+    /**
+     * Registers a new command.
+     * @param {string} name The name of the command.
+     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     * @returns {Command}
+     */
     registerCommand(name, exec) {
         const command = new Command(name, exec)
         this.commands.push(command)
         return command
     }
+
+    /**
+     * Executes a command.
+     * @param {string} name 
+     * @param  {...string} params 
+     */
     execCommand(name, ...params) {
-        const command = this.commands.find(command => command.name === name )
-        this.commands[this.commands.indexOf(command)].exec(...params)
+        const command = this.commands.find( command => command.name === name )
+        if (command) command.exec(...params)
     }
 }
 export class Command {
