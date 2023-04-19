@@ -14,7 +14,6 @@ export class CommandSet {
     execCommand(name, ...params) {
         const command = this.commands.find(command => command.name === name )
         this.commands[this.commands.indexOf(command)].exec(...params)
-        //console.log()
     }
 }
 export class Command {
