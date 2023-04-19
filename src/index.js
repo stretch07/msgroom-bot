@@ -19,10 +19,7 @@ export class CommandSet {
 export class Command {
     constructor(name, exec) {
         this.name = name
-        this._exec = exec
-    }
-    exec(...params) {
-        this._exec(...params)
+        this.exec = exec
     }
 }
 export default class {
