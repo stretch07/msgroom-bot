@@ -79,6 +79,9 @@ export interface ServerToClientEvents {
  */
 export interface ClientToServerEvents {
     "admin-action": (args: {
+        /**
+         * We currently have no idea what this could be, apart from what the type must be according to the code of the official msgroom client.
+         */
         args: string[];
     }) => void;
     
