@@ -39,6 +39,21 @@ export class CommandSet {
     }
 }
 export class Command {
+    /**
+     * The name of the command.
+     * @type {string}
+     */
+    name
+    /**
+     * This function will be called when the command is ran.
+     * @type {(...params: string[]) => void}
+     */
+    exec
+
+    /**
+     * @param {string} name The name of the command.
+     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     */
     constructor(name, exec) {
         this.name = name
         this.exec = exec
