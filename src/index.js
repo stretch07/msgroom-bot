@@ -60,15 +60,15 @@ export class Command {
     }
 }
 export default class {
-    /**
-     * @type {MsgroomSocket}
-     */
+    /** @type {import("./types.js").default} */
     SOCKET
+    /** @type {CommandSet[]} */
+    commandSets
+    /** @type {import("./types.js").User[]} */
+    users
     
     constructor() {
-        /** @type {CommandSet[]} */
         this.commandSets = []
-        /** @type {import("./types.js").User[]} */
         this.users = []
     }
     /**
@@ -150,25 +150,27 @@ export default class {
         return this
     }
     /**
-     * Wait until a specific event fires
-     * @param {string} event The event being listened to
-     * @returns {any} Returns with the content of the event
+     * Wait until a specific event fires.
+     * @param {import("./types.js").ServerToClientEventNames} event The event being listened to.
+     * @returns {Promise<any>} The content of the event.
      */
-    waitUntil(event) {
-        return new Promise((resolve) => {
+    waitUntil(event) { // I can't type the return value. I might be able to do such a thing using typescript.
+        return new Promise( resolve => {
             this.SOCKET.once(event, e => {
                 resolve(e)
             })
         })
     }
+
     /**
-     * Disconnects. Call this.connect to reconnect.
+     * Disconnects. Call {@link connect} to reconnect.
      * @returns {this}
      */
     disconnect() {
         this.SOCKET.disconnect()
         return this
     }
+
     /**
      * Executes an admin action. You must be staff for this to work.
      * @param {string[]} args We currently have no idea what this could be, apart from what the type must be according to the code of the official msgroom client.
@@ -178,9 +180,11 @@ export default class {
         this.SOCKET.emit("admin-action", { args })
         return this
     }
+
     /**
      * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
      * @param {string} prefix prefix for the CommandSet
+     * @returns {CommandSet} The newly created commandSet
      */
     registerCommandSet(prefix) {
         const thing = new CommandSet(prefix)
