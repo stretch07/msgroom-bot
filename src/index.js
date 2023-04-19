@@ -27,14 +27,17 @@ export default class {
      * @type {MsgroomSocket}
      */
     SOCKET
+    
     constructor() {
         /** @type {CommandSet[]} */
         this.commandSets = []
+        /** @type {import("./types.js").User[]} */
         this.users = []
     }
     /**
      * Connects to msgroom instance.
      * @param {string} nick Nickname of the bot to initially connect
+     * @param {string | undefined} apikey The apikey for your bot, you can request one from ctrlz. Using an apikey will result in your bot getting a `bot` flag.
      * @param {URL} url URL of the bot to connect to. Leave blank for default Windows 96 msgroom
      */
     connect(nick, apikey, url = new URL("wss://windows96.net:4096")) {
@@ -45,23 +48,19 @@ export default class {
                     return comset
                 }
             })
-            if (!matchingCommandSet) {
-                return
-            } else {
-                //thanks for the command parser, chatgpt
-                const input = message.content
-                const prefix = matchingCommandSet.prefix
-                const regex = new RegExp(`^${prefix}([a-z]+)\\s(.*)$`, "i");
-                const match = input.match(regex);
+            if (!matchingCommandSet) return
 
-                if (match) {
-                    const command = match[1];
-                    const args = match[2].split(" ");
-                    matchingCommandSet.execCommand(command, ...args)
-                } else {
-                    await this.send("Syntax error ocurred when parsing command")
-                }
-            }
+            //thanks for the command parser, chatgpt
+            const input = message.content
+            const prefix = matchingCommandSet.prefix
+            const regex = new RegExp(`^${prefix}([a-z]+)\\s(.*)$`, "i");
+            const match = input.match(regex);
+
+            if (!match) return this.send("Syntax error ocurred when parsing command")
+
+            const command = match[1];
+            const args = match[2].split(" ");
+            matchingCommandSet.execCommand(command, ...args)
         })
         this.SOCKET.on("online", users => {
             this.users = users
@@ -135,11 +134,11 @@ export default class {
     }
     /**
      * Executes an admin action. You must be staff for this to work.
-     * @param {*} args 
+     * @param {string[]} args We currently have no idea what this could be, apart from what the type must be according to the code of the official msgroom client.
      * @returns {this}
      */
-    admin(args){
-        this.SOCKET.emit("admin-action", {args: args})
+    admin(args) {
+        this.SOCKET.emit("admin-action", { args })
         return this
     }
     /**
