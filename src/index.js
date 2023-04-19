@@ -1,3 +1,4 @@
+//@ts-check
 import { io } from "socket.io-client"
 import MsgroomSocket from "./types.js"
 
