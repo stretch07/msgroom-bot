@@ -2,6 +2,12 @@ import { io } from "socket.io-client"
 import MsgroomSocket from "./types.js"
 
 export class CommandSet {
+    /** @type {string} */
+    prefix
+
+    /** @type {Command[]} */
+    commands
+
     constructor(prefix) {
         this.prefix = prefix
         this.commands = []
