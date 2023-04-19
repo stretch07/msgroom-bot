@@ -79,7 +79,7 @@ export interface ServerToClientEvents {
  */
 export interface ClientToServerEvents {
     "admin-action": (args: {
-        args: any;
+        args: string[];
     }) => void;
     
     message: (args: {
