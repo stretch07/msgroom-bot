@@ -1,8 +1,12 @@
 import { Socket } from "socket.io-client";
+import { EventNames } from "@socket.io/component-emitter"
 
-
-type MsgroomSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
+export type MsgroomSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 export default MsgroomSocket;
+
+type ReservedEventNames = "connect" | "connect_error" | "disconnect"
+export type ServerToClientEventNames = EventNames<ServerToClientEvents> | ReservedEventNames
+export type ClientToServerEventNames = EventNames<ClientToServerEvents>
 
 /**
  * Hexadecimal color string
@@ -12,7 +16,7 @@ export type hexColor = `#${string}`;
 
 export type flag = "staff" | "bot";
 
-interface User {
+export interface User {
     color: hexColor;
     flags: flag[];
     id: string;
@@ -79,7 +83,10 @@ export interface ServerToClientEvents {
  */
 export interface ClientToServerEvents {
     "admin-action": (args: {
-        args: any;
+        /**
+         * We currently have no idea what this could be, apart from what the type must be according to the code of the official msgroom client.
+         */
+        args: string[];
     }) => void;
     
     message: (args: {
