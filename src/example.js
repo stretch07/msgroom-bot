@@ -2,7 +2,7 @@ import MsgroomBot from "./index.js";
 const bot = new MsgroomBot
 
 try {
-    bot.connect("msgroom-bot")
+    bot.connect("msgroom-bot [ok!]")
 } catch(e) {
     process.exit(1)
 }
@@ -19,4 +19,7 @@ cmse.registerCommand("say", (...args) => {
 })
 cmse.registerCommand("nick", (...args) => {
     bot.changeNick(args[0])
+})
+cmse.registerCommand("balls", () => {
+    bot.send("example of command with no args nor access to args")
 })
