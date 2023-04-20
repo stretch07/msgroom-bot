@@ -1,7 +1,7 @@
 # msgroom-bot
 A Javascript library to create a Windows96 MsgRoom bot using Node.js.  
-*Please note that this is NOT the official API for creating MsgRoom bots. The official API is not yet publicly released.*
-
+*Please note that this is NOT the official API for creating MsgRoom bots. The official API is not yet publicly released.*  
+*Note that the npm version of this package has a CWE-912 vuln*
 ## Features
 ### Native command support
 Support for command prefixes. Commands trigger a function that the bot handles.
