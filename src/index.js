@@ -1,36 +1,72 @@
+//@ts-check
 import { io } from "socket.io-client"
-import MsgroomSocket from "./types.js"
+import { AuthError } from "./errors.js"
 
 export class CommandSet {
+    /** @type {string} */
+    prefix
+    /** @type {Command[]} */
+    commands
+
+    /**
+     * @param {string} prefix The prefix for your command.
+     */
     constructor(prefix) {
         this.prefix = prefix
         this.commands = []
     }
+
+    /**
+     * Registers a new command.
+     * @param {string} name The name of the command.
+     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     * @returns {Command}
+     */
     registerCommand(name, exec) {
         const command = new Command(name, exec)
         this.commands.push(command)
         return command
     }
+
+    /**
+     * Executes a command.
+     * @param {string} name 
+     * @param  {...string} params 
+     */
     execCommand(name, ...params) {
-        const command = this.commands.find(command => command.name === name )
-        this.commands[this.commands.indexOf(command)].exec(...params)
-        //console.log()
+        const command = this.commands.find( command => command.name === name )
+        if (command) command.exec(...params)
     }
 }
 export class Command {
+    /**
+     * The name of the command.
+     * @type {string}
+     */
+    name
+    /**
+     * This function will be called when the command is ran.
+     * @type {(...params: string[]) => void}
+     */
+    exec
+
+    /**
+     * @param {string} name The name of the command.
+     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     */
     constructor(name, exec) {
         this.name = name
-        this._exec = exec
-    }
-    exec(...params) {
-        this._exec(...params)
+        this.exec = exec
     }
 }
 export default class {
-    /**
-     * @type {MsgroomSocket}
-     */
+    /** @type {import("./types.js").default} */
     SOCKET
+    /** @type {CommandSet[]} */
+    commandSets
+    /** @type {import("./types.js").User[]} */
+    users
+    
     constructor() {
         this.commandSets = []
         this.users = []
@@ -38,57 +74,58 @@ export default class {
     /**
      * Connects to msgroom instance.
      * @param {string} nick Nickname of the bot to initially connect
+     * @param {string | undefined} apikey The apikey for your bot, you can request one from ctrlz. Using an apikey will result in your bot getting a `bot` flag.
      * @param {URL} url URL of the bot to connect to. Leave blank for default Windows 96 msgroom
+     * @returns {Promise<void>}
+     * @throws {AuthError} When the event `auth-error` is received
      */
     connect(nick, apikey, url = new URL("wss://windows96.net:4096")) {
         this.SOCKET = io(url.href)
-        this.SOCKET.on("message", async (message) => {
-            const matchingCommandSet = this.commandSets.find(comset => {
-                if (message.content.startsWith(comset.prefix)) {
-                    return comset
-                }
-            })
-            if (!matchingCommandSet) {
-                return
-            } else {
-                //thanks for the command parser, chatgpt
-                const input = message.content
-                const prefix = matchingCommandSet.prefix
-                const regex = new RegExp(`^${prefix}([a-z]+)\\s(.*)$`, "i");
-                const match = input.match(regex);
 
-                if (match) {
-                    const command = match[1];
-                    const args = match[2].split(" ");
-                    matchingCommandSet.execCommand(command, ...args)
-                } else {
-                    await this.send("Syntax error ocurred when parsing command")
-                }
-            }
+        //#region define event listeners
+
+        this.SOCKET.on("message", async (message) => {
+            const matchingCommandSet = this.commandSets.find(commandSet => message.content.startsWith(commandSet.prefix))
+            if (!matchingCommandSet) return
+
+            //thanks for the command parser, chatgpt
+            const regex = new RegExp(`^${matchingCommandSet.prefix}([a-z]+)\\s(.*)$`, "i");
+            const match = message.content.match(regex);
+            if (!match) return this.send("Syntax error ocurred when parsing command")
+
+            const command = match[1];
+            const args = match[2].split(" ");
+            matchingCommandSet.execCommand(command, ...args)
         })
+
         this.SOCKET.on("online", users => {
             this.users = users
         })
+
         this.SOCKET.on("user-join", user => {
             this.users.push(user)
         })
+
         this.SOCKET.on("user-leave", user => {
-            //we find the user that left, get its index, and delete the value.
-            this.users.splice(this.users.indexOf(this.users.find(founduser => founduser.id === user.id)), 1)
+            const leftUser = this.users.find(founduser => founduser.id === user.id)
+            if (!leftUser) return
+
+            const indexOfLeftUser = this.users.indexOf(leftUser)
+            delete this.users[indexOfLeftUser]
         })
+
+        //#endregion
+
         return new Promise((resolve, reject) => {
             this.SOCKET.on("auth-complete", userId => {
                 this.userId = userId
-                resolve(this)
+                resolve()
             })
             this.SOCKET.on("auth-error", e => {
-                reject(e)
+                reject(new AuthError(e.reason))
             })
-            if (apikey) {
-                this.SOCKET.emit("auth", { user: nick, apikey: apikey})
-            } else {
-                this.SOCKET.emit("auth", {user: nick})
-            }
+
+            this.SOCKET.emit("auth", { user: nick, apikey})
         })
     }
     /**
@@ -97,14 +134,10 @@ export default class {
      * @returns {this}
      */
     send(msg = "") {
-        try {
-            this.SOCKET.emit("message", {
-                type: "text",
-                content: msg
-            })
-        } catch (e) {
-            throw new Error(e)
-        }
+        this.SOCKET.emit("message", {
+            type: "text",
+            content: msg
+        })
         return this
     }
     /**
@@ -117,37 +150,41 @@ export default class {
         return this
     }
     /**
-     * Wait until a specific event fires
-     * @param {string} event The event being listened to
-     * @returns {any} Returns with the content of the event
+     * Wait until a specific event fires.
+     * @param {import("./types.js").ServerToClientEventNames} event The event being listened to.
+     * @returns {Promise<any>} The content of the event.
      */
-    waitUntil(event) {
-        return new Promise((resolve) => {
+    waitUntil(event) { // I can't type the return value. I might be able to do such a thing using typescript.
+        return new Promise( resolve => {
             this.SOCKET.once(event, e => {
                 resolve(e)
             })
         })
     }
+
     /**
-     * Disconnects. Call this.connect to reconnect.
+     * Disconnects. Call {@link connect} to reconnect.
      * @returns {this}
      */
     disconnect() {
         this.SOCKET.disconnect()
         return this
     }
+
     /**
      * Executes an admin action. You must be staff for this to work.
-     * @param {*} args 
+     * @param {string[]} args We currently have no idea what this could be, apart from what the type must be according to the code of the official msgroom client.
      * @returns {this}
      */
-    admin(args){
-        this.SOCKET.emit("admin-action", {args: args})
+    admin(args) {
+        this.SOCKET.emit("admin-action", { args })
         return this
     }
+
     /**
      * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
      * @param {string} prefix prefix for the CommandSet
+     * @returns {CommandSet} The newly created commandSet
      */
     registerCommandSet(prefix) {
         const thing = new CommandSet(prefix)
