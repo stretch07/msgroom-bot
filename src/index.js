@@ -89,12 +89,12 @@ export default class {
             if (!matchingCommandSet) return
 
             //thanks for the command parser, chatgpt
-            const regex = new RegExp(`^${matchingCommandSet.prefix}([a-z]+)\\s(.*)$`, "i");
+            const regex = new RegExp(`^${matchingCommandSet.prefix}([a-z]+)?\\s?(.*)$`, "i");
             const match = message.content.match(regex);
             if (!match) return this.send("Syntax error ocurred when parsing command")
 
             const command = match[1];
-            const args = match[2].split(" ");
+            const args = match[2]?.split(" ");
             matchingCommandSet.execCommand(command, ...args)
         })
 
