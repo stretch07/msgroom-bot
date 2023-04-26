@@ -69,6 +69,7 @@ export default class {
     
     constructor() {
         this.commandSets = []
+        this.commands = []
         this.users = []
     }
     /**
@@ -84,18 +85,31 @@ export default class {
 
         //#region define event listeners
 
-        this.SOCKET.on("message", async (message) => {
+        this.SOCKET.on("message", (message) => {
             const matchingCommandSet = this.commandSets.find(commandSet => message.content.startsWith(commandSet.prefix))
-            if (!matchingCommandSet) return
-
+            const matchingCommand = this.commands.find(command => message.content.startsWith(command.name))
+            const matcher = (matchingCommandSet || matchingCommand)
+            if (!matcher) return
+            const matcherIdentifier = matcher.prefix || matcher.name
+            
             //thanks for the command parser, chatgpt
-            const regex = new RegExp(`^${matchingCommandSet.prefix}([a-z]+)\\s(.*)$`, "i");
-            const match = message.content.match(regex);
-            if (!match) return this.send("Syntax error ocurred when parsing command")
-
-            const command = match[1];
+            const regex = new RegExp(`^${matcherIdentifier}([a-z]+)\\s(.*)$`, "i");
+            let match = message.content.match(regex);
+            if (!match) {
+              //lets try for command instead of commandset
+              match = message.content.match(new RegExp(`^${matcherIdentifier}(\\S+)\\s?(.*)$`, "i"))
+            }
+            console.log(match)
+            if (!match) {
+              this.send("Syntax error ocurred when parsing command")
+              return
+            }
             const args = match[2].split(" ");
-            matchingCommandSet.execCommand(command, ...args)
+            if (matcher.execCommand) {
+              matcher.execCommand(command, ...args)
+            } else {
+              matcher.exec(command, ...args)
+            }
         })
 
         this.SOCKET.on("online", users => {
@@ -190,5 +204,10 @@ export default class {
         const thing = new CommandSet(prefix)
         this.commandSets.push(thing)
         return thing
+    }
+    registerCommand(name, exec) {
+        const command = new Command(name, exec)
+        this.commands.push(command)
+        return command
     }
 }
