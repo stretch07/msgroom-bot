@@ -16,6 +16,10 @@ View [installation](#installation) for help on the basics of this library.
 Some quick tips and reminders:
 * Do not use strict equality operators when checking if arguments are primitive values that aren't strings. Your code will fail if you do this. Arguments will always be strings.
 
+## FAQ
+Q. I'm getting an argument from a user, but it's HTML-encoded! (\&amp; instead of &, etc.)
+A. Use the [`he`](https://www.npmjs.com/package/he) package or similar to encode and decode special HTML characters. Functionality for this is not built in.
+
 ## Contributing
 Feel free to open forks and pull requests. Below are some notable contributors.
 ### Lead Developers
