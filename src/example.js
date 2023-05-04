@@ -20,6 +20,8 @@ cmse.registerCommand("say", (...args) => {
 cmse.registerCommand("nick", (...args) => {
     bot.changeNick(args[0])
 })
-cmse.registerCommand("balls", () => {
-    bot.send("example of command with no args nor access to args")
+
+//example of a loose command without a commandset
+bot.registerCommand("wowza", () => {
+  bot.send("wowza back")
 })
