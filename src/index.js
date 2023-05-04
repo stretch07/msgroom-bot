@@ -121,7 +121,7 @@ export default class {
         })
 
         this.SOCKET.on("user-leave", user => {
-            const leftUser = this.users.find(founduser => founduser.id === user.id)
+            const leftUser = this.users.find(founduser => founduser?.id === user.id)
             if (!leftUser) return
 
             const indexOfLeftUser = this.users.indexOf(leftUser)
