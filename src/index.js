@@ -1,5 +1,6 @@
 //@ts-check
 import { io } from "socket.io-client"
+import he from "he"
 import { AuthError } from "./errors.js"
 
 export class CommandSet {
@@ -86,6 +87,9 @@ export default class {
         //#region define event listeners
 
         this.SOCKET.on("message", (message) => {
+            // decode HTML entities in message
+            message.content = he.decode(message.content)
+
             const matchingCommandSet = this.commandSets.find(commandSet => message.content.startsWith(commandSet.prefix))
             const matchingCommand = this.commands.find(command => message.content.startsWith(command.name))
             const matcher = (matchingCommandSet || matchingCommand)
@@ -99,12 +103,12 @@ export default class {
               //lets try for command instead of commandset
               match = message.content.match(new RegExp(`^${matcherIdentifier}(\\S+)\\s?(.*)$`, "i"))
             }
-            console.log(match)
             if (!match) {
               this.send("Syntax error ocurred when parsing command")
               return
             }
-            const args = match[2].split(" ");
+            const command = match[1];
+            const args = match[2]?.split(" ");
             if (matcher.execCommand) {
               matcher.execCommand(command, ...args)
             } else {
@@ -205,6 +209,12 @@ export default class {
         this.commandSets.push(thing)
         return thing
     }
+    /**
+     * Registers a new command.
+     * @param {string} name The name of the command.
+     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     * @returns {Command}
+     */
     registerCommand(name, exec) {
         const command = new Command(name, exec)
         this.commands.push(command)
