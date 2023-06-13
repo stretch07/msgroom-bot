@@ -60,7 +60,7 @@ export class Command {
         this.exec = exec
     }
 }
-export default class {
+export class msgroomBot {
     /** @type {import("./types.js").default} */
     SOCKET
     /** @type {CommandSet[]} */
@@ -172,7 +172,7 @@ export default class {
      * @param {import("./types.js").ServerToClientEventNames} event The event being listened to.
      * @returns {Promise<any>} The content of the event.
      */
-    waitUntil(event) { // I can't type the return value. I might be able to do such a thing using typescript.
+    waitUntil(event) {
         return new Promise( resolve => {
             this.SOCKET.once(event, e => {
                 resolve(e)
@@ -190,16 +190,6 @@ export default class {
     }
 
     /**
-     * Executes an admin action. You must be staff for this to work.
-     * @param {string[]} args We currently have no idea what this could be, apart from what the type must be according to the code of the official msgroom client.
-     * @returns {this}
-     */
-    admin(args) {
-        this.SOCKET.emit("admin-action", { args })
-        return this
-    }
-
-    /**
      * A CommandSet is a collection of commands under one prefix. Most bots only need one CommandSet.
      * @param {string} prefix prefix for the CommandSet
      * @returns {CommandSet} The newly created commandSet
@@ -209,6 +199,23 @@ export default class {
         this.commandSets.push(thing)
         return thing
     }
+
+    /**
+     * Unregisters a CommandSet.
+     * @param {string} prefix prefix for the CommandSet
+     * @returns {this}
+     */
+    unRegisterCommandSet(prefix) {
+        const cmse = this.commandSets.find(possibleCmse => {
+            return possibleCmse.prefix === prefix
+        })
+        // @ts-ignore 
+        // we're assuming this isn't undefined
+        const index = this.commandSets.indexOf(cmse)
+        this.commands.splice(index, 1)
+        return this
+    }
+
     /**
      * Registers a new command.
      * @param {string} name The name of the command.
@@ -219,5 +226,46 @@ export default class {
         const command = new Command(name, exec)
         this.commands.push(command)
         return command
+    }
+
+    /**
+     * Unregisters a command
+     * @param {string} name The name of the command.
+     * @returns {this} 
+     */
+    unRegisterCommand(name) {
+        const command = this.commands.find(possibleCommand => {
+            return possibleCommand.name === name
+        })
+        const index = this.commands.indexOf(command)
+        this.commands.splice(index, 1)
+        return this
+    }
+
+    /**
+     * Registers a help command.
+     * @param {string} content Message to be displayed when help command is triggered
+     * @returns 
+     */
+    registerHelp(content) {
+        this.help = content
+        this.registerCommand("help", () => {
+            this.send(content)
+        })
+        return this
+    }
+
+    /**
+     * Unregisters the help command.
+     * @returns {this}
+     */
+    unRegisterHelp() {
+        try {
+            this.unRegisterCommand("help")
+        } catch(e) {
+            // Swallow error
+            // Error probably caused by the help command not being registered in the first place.
+        }
+        return this
     }
 }

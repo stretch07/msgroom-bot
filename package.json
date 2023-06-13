@@ -1,6 +1,6 @@
 {
   "name": "msgroom-bot",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Make a bot for windows 96's msgroom. Native support for commands.",
   "main": "src/index.js",
   "scripts": {
