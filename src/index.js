@@ -20,7 +20,7 @@ export class CommandSet {
     /**
      * Registers a new command.
      * @param {string} name The name of the command.
-     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     * @param {(user: import("./types.js").User, ...params: string[]) => void} exec This function will be called when the command is ran.
      * @returns {Command}
      */
     registerCommand(name, exec) {
@@ -34,9 +34,9 @@ export class CommandSet {
      * @param {string} name 
      * @param  {...string} params 
      */
-    execCommand(name, ...params) {
+    execCommand(name, user, ...params) {
         const command = this.commands.find( command => command.name === name )
-        if (command) command.exec(...params)
+        if (command) command.exec(user, ...params)
     }
 }
 export class Command {
@@ -47,13 +47,13 @@ export class Command {
     name
     /**
      * This function will be called when the command is ran.
-     * @type {(...params: string[]) => void}
+     * @type {(user: import("./types.js").User, ...args: string[]) => void}
      */
     exec
 
     /**
      * @param {string} name The name of the command.
-     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     * @param {(user: import("./types.js").User, ...args: string[]) => void} exec This function will be called when the command is ran.
      */
     constructor(name, exec) {
         this.name = name
@@ -85,9 +85,10 @@ export class msgroomBot {
         this.SOCKET = io(url.href)
 
         //#region define event listeners
-
         this.SOCKET.on("message", (message) => {
             // decode HTML entities in message
+            const sender = message.id
+            const user = this.getUserById(sender)
             message.content = he.decode(message.content)
 
             const matchingCommandSet = this.commandSets.find(commandSet => message.content.startsWith(commandSet.prefix))
@@ -110,9 +111,9 @@ export class msgroomBot {
             const command = match[1];
             const args = match[2]?.split(" ");
             if (matcher.execCommand) {
-              matcher.execCommand(command, ...args)
+              matcher.execCommand(command, user, ...args)
             } else {
-              matcher.exec(command, ...args)
+              matcher.exec(command, user, ...args)
             }
         })
 
@@ -219,7 +220,7 @@ export class msgroomBot {
     /**
      * Registers a new command.
      * @param {string} name The name of the command.
-     * @param {(...params: string[]) => void} exec This function will be called when the command is ran.
+     * @param {(user: import("./types.js").User, ...params: string[]) => void} exec This function will be called when the command is ran.
      * @returns {Command}
      */
     registerCommand(name, exec) {
@@ -267,5 +268,11 @@ export class msgroomBot {
             // Error probably caused by the help command not being registered in the first place.
         }
         return this
+    }
+
+    getUserById(id) {
+        return this.users.find((user) => {
+            user.id === id
+        })
     }
 }
