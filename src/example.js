@@ -1,5 +1,5 @@
-import MsgroomBot from "./index.js";
-const bot = new MsgroomBot
+import { msgroomBot } from "./index.js";
+const bot = new msgroomBot
 
 try {
     bot.connect("msgroom-bot [ok!]")
