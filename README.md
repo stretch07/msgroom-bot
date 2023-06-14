@@ -23,5 +23,3 @@ Feel free to open forks and pull requests. Below are some notable contributors.
 * [its-pablo](https://github.com/its-pablo)
 ### Maintainers
 * [Kelbaz](https://github.com/kelbazz)
-### General Contributors
-* [NanderTGA](https://github.com/NanderTGA)
